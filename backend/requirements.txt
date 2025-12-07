@@ -1,2 +1,2 @@
 langchain_core
-lagchain_community
+langchain_community
