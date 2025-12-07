@@ -1,0 +1,7 @@
+# backend/requirements.txt
+# ... other packages (like langchain)
+uvicorn[standard]
+gunicorn  # Recommended for running uvicorn worker processes in production
+langchain
+fastapi
+pydantic
