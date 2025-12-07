@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+modal
+torch
+transformers
+pandas
+scikit-learn
+xgboost
+pytest
