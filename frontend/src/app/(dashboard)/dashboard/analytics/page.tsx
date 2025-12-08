@@ -148,7 +148,7 @@ export default function AnalyticsPage() {
                                 cx="50%"
                                 cy="50%"
                                 labelLine={false}
-                                label={({ category, count }) => `${category}: ${count}`}
+                                label={({ category, count }: any) => `${category}: ${count}`}
                                 outerRadius={100}
                                 fill="#8884d8"
                                 dataKey="count"
