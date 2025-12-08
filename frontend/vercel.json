@@ -5,7 +5,7 @@
     "rewrites": [
         {
             "source": "/api/:path*",
-            "destination": "https://smartone-production.up.railway.app/api/:path*"
+            "destination": "https://pharmatrack-jexy.onrender.com/api/:path*"
         }
     ]
 }
