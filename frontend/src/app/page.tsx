@@ -1,19 +1,28 @@
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
+
 export default function Home() {
+  const router = useRouter();
+  const { user, isLoading } = useAuth();
+
+  useEffect(() => {
+    if (!isLoading) {
+      if (user) {
+        router.push('/dashboard');
+      } else {
+        router.push('/login');
+      }
+    }
+  }, [user, isLoading, router]);
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
       <div className="text-center text-white">
-        <h1 className="text-6xl font-bold mb-4">
-          🏥 Smart Pharmacy System
-        </h1>
-        <p className="text-2xl mb-8">
-          AI-Powered Inventory Management
-        </p>
-        <p className="text-lg opacity-90">
-          Coming Soon • 7-Day Sprint in Progress
-        </p>
-        <div className="mt-8">
-          <span className="text-green-300 font-semibold">✓ Infrastructure Ready</span>
-        </div>
+        <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-white mx-auto mb-4"></div>
+        <p className="text-xl">Loading...</p>
       </div>
     </div>
   );
