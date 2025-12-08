@@ -19,7 +19,7 @@ passlib[bcrypt]==1.7.4
 python-multipart==0.0.6
 
 # Data Processing (for Excel uploads)
-pandas==2.1.4
+pandas>=2.2.0
 openpyxl==3.1.2
 
 # HTTP Client (to call ML services)
