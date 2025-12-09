@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { analyticsApi } from '@/lib/api';
-import { Package, DollarSign, AlertTriangle, TrendingUp } from 'lucide-react';
+import { Package, DollarSign, AlertTriangle, TrendingUp, Shield } from 'lucide-react';
 
 export default function DashboardPage() {
     const { data: stats, isLoading } = useQuery({
@@ -92,6 +92,9 @@ export default function DashboardPage() {
                     <button className="px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
                         Generate Report
                     </button>
+                    <a href="/dashboard/safety" className="px-4 py-3 bg-gradient-to-r from-teal-500 to-emerald-500 text-white rounded-lg hover:shadow-lg transition-all flex items-center justify-center gap-2 font-semibold">
+                        <Shield className="w-5 h-5" /> Safety Check
+                    </a>
                 </div>
             </div>
 
