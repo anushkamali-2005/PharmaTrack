@@ -18,8 +18,8 @@ env_path = os.path.join(backend_root, ".env")
 load_dotenv(env_path)
 
 # Configuration
-CSV_PATH = os.path.join(backend_root, "datasets/raw/medquad.csv")
-CHROMA_DB_DIR = os.path.join(backend_root, "backend/data/chroma_db")
+CSV_PATH = os.path.join(backend_root, "data/medquad.csv")
+CHROMA_DB_DIR = os.path.join(backend_root, "data/chroma_db")
 COLLECTION_NAME = "medquad_safety_kb"
 
 class SafetyRagService:
