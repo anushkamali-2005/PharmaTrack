@@ -181,6 +181,11 @@ export const safetyApi = {
         const response = await apiClient.post('/safety/check', data);
         return response.data;
     },
+    // Search drugs for autocomplete
+    searchDrugs: async (query: string) => {
+        const response = await apiClient.get('/safety/search-drugs', { params: { q: query } });
+        return response.data;
+    },
 };
 
 // Export axios instance for custom requests
