@@ -100,19 +100,43 @@ async def get_safety_status():
     Check if the safety system is ready (knowledge base loaded, API keys configured).
     """
     try:
+        # Trigger initialization to get accurate status
+        safety_service._ensure_initialized()
+        
         has_vector_store = safety_service.vector_store is not None
         has_llm = safety_service.llm is not None
         has_embeddings = safety_service.embeddings is not None
+        
+        # Check if API key is configured
+        import os
+        has_api_key = bool(os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY"))
+        
+        # Check if ChromaDB directory exists
+        from features.rag_safety.service import CHROMA_DB_DIR
+        chroma_db_exists = os.path.exists(CHROMA_DB_DIR)
+        
+        message = "System ready"
+        if not has_api_key:
+            message = "Google API key not configured. Set GOOGLE_API_KEY or GEMINI_API_KEY environment variable."
+        elif not chroma_db_exists:
+            message = "ChromaDB not found. Run /ingest endpoint to create knowledge base."
+        elif not has_vector_store:
+            message = "Vector store not loaded. Run /ingest endpoint to populate knowledge base."
+        elif not (has_llm and has_embeddings):
+            message = "LLM or embeddings not configured. Check API key configuration."
         
         return {
             "ready": has_vector_store and has_llm and has_embeddings,
             "vector_store_loaded": has_vector_store,
             "llm_configured": has_llm,
             "embeddings_configured": has_embeddings,
-            "message": "System ready" if (has_vector_store and has_llm and has_embeddings) else "System not fully configured"
+            "api_key_configured": has_api_key,
+            "chroma_db_exists": chroma_db_exists,
+            "message": message
         }
     except Exception as e:
         return {
             "ready": False,
-            "error": str(e)
+            "error": str(e),
+            "message": f"Error checking status: {str(e)}"
         }
