@@ -1,237 +1,257 @@
 'use client';
 
-import { useState } from 'react';
-import { Shield, AlertTriangle, CheckCircle, Info, Search } from 'lucide-react';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Search, Plus, X, Activity, AlertCircle, ShieldCheck } from 'lucide-react';
+import { safetyApi } from '@/lib/api';
+import SafetyScoreCard from '@/features/rag_safety/components/SafetyScoreCard';
+import AlternativeMeds from '@/features/rag_safety/components/AlternativeMeds';
 
-export default function MedicineSafetyPage() {
-    const [selectedMedicine, setSelectedMedicine] = useState('');
-    const [patientAge, setPatientAge] = useState('');
-    const [existingMeds, setExistingMeds] = useState('');
+export default function SafetyPage() {
+    const [drugName, setDrugName] = useState('');
+    const [conditionInput, setConditionInput] = useState('');
+    const [conditions, setConditions] = useState<string[]>([]);
+    const [medInput, setMedInput] = useState('');
+    const [currentMeds, setCurrentMeds] = useState<string[]>([]);
+
+    const [loading, setLoading] = useState(false);
+    const [result, setResult] = useState<any>(null);
+    const [error, setError] = useState('');
+
+    const handleAddCondition = () => {
+        if (conditionInput.trim()) {
+            setConditions([...conditions, conditionInput.trim()]);
+            setConditionInput('');
+        }
+    };
+
+    const handleAddMed = () => {
+        if (medInput.trim()) {
+            setCurrentMeds([...currentMeds, medInput.trim()]);
+            setMedInput('');
+        }
+    };
+
+    const handleCheck = async () => {
+        if (!drugName) return;
+        setLoading(true);
+        setError('');
+        setResult(null);
+
+        try {
+            const data = await safetyApi.checkSafety({
+                drug_name: drugName,
+                conditions: conditions,
+                current_medications: currentMeds
+            });
+            setResult(data);
+        } catch (err) {
+            setError('Failed to analyze safety. Please check backend connection.');
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div>
-                <h1 className="text-3xl font-bold text-gray-900">Medicine Safety Engine</h1>
-                <p className="text-gray-500 mt-1">
-                    AI-powered drug interactions, dosage recommendations, and safety checks
-                </p>
-            </div>
+        <div className="min-h-screen bg-gray-900 text-white p-8">
+            <div className="max-w-6xl mx-auto space-y-8">
 
-            {/* Feature Overview */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg border border-green-200 p-6">
-                    <div className="p-3 rounded-full bg-green-600 w-fit mb-4">
-                        <Shield className="w-6 h-6 text-white" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Drug Interactions</h3>
-                    <p className="text-sm text-gray-600">
-                        Check compatibility between multiple medications
-                    </p>
-                </div>
-
-                <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200 p-6">
-                    <div className="p-3 rounded-full bg-blue-600 w-fit mb-4">
-                        <Info className="w-6 h-6 text-white" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Dosage Calculator</h3>
-                    <p className="text-sm text-gray-600">
-                        Age and condition-based dosage recommendations
-                    </p>
-                </div>
-
-                <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg border border-purple-200 p-6">
-                    <div className="p-3 rounded-full bg-purple-600 w-fit mb-4">
-                        <AlertTriangle className="w-6 h-6 text-white" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">ADR Warnings</h3>
-                    <p className="text-sm text-gray-600">
-                        Adverse drug reaction alerts and side effects
-                    </p>
-                </div>
-            </div>
-
-            {/* Integration Note */}
-            <div className="bg-blue-50 rounded-lg border border-blue-200 p-4">
-                <p className="text-sm text-blue-800 font-medium mb-2">
-                    🤖 DATA SCIENTIST: Integrate your ML models here
-                </p>
-                <p className="text-xs text-gray-600">
-                    Models needed:
-                    <br />• GNN-based drug interaction predictor
-                    <br />• RAG system for medical literature search
-                    <br />• Neuro-symbolic reasoning engine
-                </p>
-            </div>
-
-            {/* Drug Interaction Checker */}
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Drug Interaction Checker</h2>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Primary Medicine
-                        </label>
-                        <input
-                            type="text"
-                            value={selectedMedicine}
-                            onChange={(e) => setSelectedMedicine(e.target.value)}
-                            placeholder="Enter medicine name..."
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
+                {/* Header */}
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex items-center gap-4"
+                >
+                    <div className="p-3 bg-purple-500/20 rounded-xl border border-purple-500/30">
+                        <ShieldCheck className="w-8 h-8 text-purple-400" />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Existing Medications
-                        </label>
-                        <input
-                            type="text"
-                            value={existingMeds}
-                            onChange={(e) => setExistingMeds(e.target.value)}
-                            placeholder="Comma-separated list..."
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
+                        <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                            AI Drug Safety Engine
+                        </h1>
+                        <p className="text-gray-400">Real-time interaction analysis & risk assessment</p>
                     </div>
-                </div>
+                </motion.div>
 
-                <button className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 mb-6">
-                    Check Interactions
-                </button>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-                {/* Sample Results */}
-                <div className="space-y-3">
-                    <div className="p-4 bg-green-50 border-l-4 border-green-500 rounded">
-                        <div className="flex items-start gap-3">
-                            <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
-                            <div>
-                                <p className="font-semibold text-green-900">Safe Combination</p>
-                                <p className="text-sm text-gray-600 mt-1">
-                                    Paracetamol + Ibuprofen - No known interactions
-                                </p>
+                    {/* Input Panel */}
+                    <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.1 }}
+                        className="lg:col-span-1 space-y-6 bg-white/5 p-6 rounded-2xl border border-white/10 backdrop-blur-sm h-fit"
+                    >
+                        {/* Drug Name */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-300 mb-2">Target Drug</label>
+                            <div className="relative">
+                                <Search className="absolute left-3 top-3 w-5 h-5 text-gray-500" />
+                                <input
+                                    type="text"
+                                    value={drugName}
+                                    onChange={(e) => setDrugName(e.target.value)}
+                                    placeholder="e.g. Aspirin 500mg"
+                                    className="w-full bg-gray-800/50 border border-gray-700 rounded-xl py-3 pl-10 pr-4 text-white focus:ring-2 focus:ring-purple-500 focus:outline-none transition-all"
+                                />
                             </div>
                         </div>
-                    </div>
 
-                    <div className="p-4 bg-yellow-50 border-l-4 border-yellow-500 rounded">
-                        <div className="flex items-start gap-3">
-                            <AlertTriangle className="w-5 h-5 text-yellow-600 mt-0.5" />
-                            <div>
-                                <p className="font-semibold text-yellow-900">Moderate Interaction</p>
-                                <p className="text-sm text-gray-600 mt-1">
-                                    Aspirin + Ibuprofen - May increase bleeding risk. Monitor closely.
-                                </p>
+                        {/* Conditions */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-300 mb-2">Patient Conditions</label>
+                            <div className="flex gap-2 mb-3">
+                                <input
+                                    type="text"
+                                    value={conditionInput}
+                                    onChange={(e) => setConditionInput(e.target.value)}
+                                    onKeyDown={(e) => e.key === 'Enter' && handleAddCondition()}
+                                    placeholder="e.g. Diabetes"
+                                    className="flex-1 bg-gray-800/50 border border-gray-700 rounded-xl py-2 px-4 text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                                />
+                                <button onClick={handleAddCondition} className="p-2 bg-purple-600 rounded-xl hover:bg-purple-500 transition-colors">
+                                    <Plus className="w-5 h-5" />
+                                </button>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                                <AnimatePresence>
+                                    {conditions.map((c, i) => (
+                                        <motion.span
+                                            key={c}
+                                            initial={{ opacity: 0, scale: 0.8 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            exit={{ opacity: 0, scale: 0.8 }}
+                                            className="px-3 py-1 bg-blue-500/20 border border-blue-500/30 text-blue-300 rounded-full text-xs flex items-center gap-1"
+                                        >
+                                            {c}
+                                            <button onClick={() => setConditions(conditions.filter((_, idx) => idx !== i))}>
+                                                <X className="w-3 h-3 hover:text-white" />
+                                            </button>
+                                        </motion.span>
+                                    ))}
+                                </AnimatePresence>
                             </div>
                         </div>
-                    </div>
 
-                    <div className="p-4 bg-red-50 border-l-4 border-red-500 rounded">
-                        <div className="flex items-start gap-3">
-                            <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5" />
-                            <div>
-                                <p className="font-semibold text-red-900">Severe Interaction</p>
-                                <p className="text-sm text-gray-600 mt-1">
-                                    Warfarin + Aspirin - Contraindicated. Seek alternative.
-                                </p>
+                        {/* Current Meds */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-300 mb-2">Current Medications</label>
+                            <div className="flex gap-2 mb-3">
+                                <input
+                                    type="text"
+                                    value={medInput}
+                                    onChange={(e) => setMedInput(e.target.value)}
+                                    onKeyDown={(e) => e.key === 'Enter' && handleAddMed()}
+                                    placeholder="e.g. Metformin"
+                                    className="flex-1 bg-gray-800/50 border border-gray-700 rounded-xl py-2 px-4 text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                                />
+                                <button onClick={handleAddMed} className="p-2 bg-purple-600 rounded-xl hover:bg-purple-500 transition-colors">
+                                    <Plus className="w-5 h-5" />
+                                </button>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                                <AnimatePresence>
+                                    {currentMeds.map((m, i) => (
+                                        <motion.span
+                                            key={m}
+                                            initial={{ opacity: 0, scale: 0.8 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            exit={{ opacity: 0, scale: 0.8 }}
+                                            className="px-3 py-1 bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 rounded-full text-xs flex items-center gap-1"
+                                        >
+                                            {m}
+                                            <button onClick={() => setCurrentMeds(currentMeds.filter((_, idx) => idx !== i))}>
+                                                <X className="w-3 h-3 hover:text-white" />
+                                            </button>
+                                        </motion.span>
+                                    ))}
+                                </AnimatePresence>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
 
-            {/* Dosage Calculator */}
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Dosage Calculator</h2>
+                        {/* Action Button */}
+                        <motion.button
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={handleCheck}
+                            disabled={loading || !drugName}
+                            className={`w-full py-4 rounded-xl font-bold text-lg shadow-lg flex items-center justify-center gap-2 transition-all ${loading || !drugName
+                                ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                                : 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white shadow-purple-900/20'
+                                }`}
+                        >
+                            {loading ? (
+                                <>
+                                    <Activity className="w-5 h-5 animate-spin" /> Analyzing...
+                                </>
+                            ) : (
+                                <>
+                                    Run Safety Check
+                                </>
+                            )}
+                        </motion.button>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Patient Age
-                        </label>
-                        <input
-                            type="number"
-                            value={patientAge}
-                            onChange={(e) => setPatientAge(e.target.value)}
-                            placeholder="Years"
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Weight (kg)
-                        </label>
-                        <input
-                            type="number"
-                            placeholder="Weight"
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Condition
-                        </label>
-                        <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option>Select condition</option>
-                            <option>Fever</option>
-                            <option>Pain</option>
-                            <option>Infection</option>
-                        </select>
-                    </div>
-                </div>
+                    </motion.div>
 
-                <div className="bg-blue-50 rounded-lg p-4">
-                    <h3 className="font-semibold text-blue-900 mb-2">Recommended Dosage</h3>
-                    <p className="text-2xl font-bold text-blue-600 mb-2">500mg every 6 hours</p>
-                    <p className="text-sm text-gray-600">
-                        Maximum daily dose: 2000mg | Duration: 3-5 days
-                    </p>
-                </div>
-            </div>
+                    {/* Results Area */}
+                    <div className="lg:col-span-2 space-y-6">
+                        <AnimatePresence mode="wait">
+                            {error && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0 }}
+                                    className="p-4 bg-red-500/20 border border-red-500/50 rounded-xl text-red-200 flex items-center gap-3"
+                                >
+                                    <AlertCircle className="w-5 h-5" />
+                                    {error}
+                                </motion.div>
+                            )}
 
-            {/* RAG-Powered Safety Search */}
-            <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200 p-6">
-                <div className="flex items-center gap-3 mb-4">
-                    <div className="p-3 rounded-full bg-purple-600">
-                        <Search className="w-6 h-6 text-white" />
+                            {!result && !loading && !error && (
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    className="flex flex-col items-center justify-center h-full text-gray-500 space-y-4 min-h-[400px]"
+                                >
+                                    <div className="w-24 h-24 rounded-full bg-white/5 flex items-center justify-center">
+                                        <ShieldCheck className="w-12 h-12 text-gray-600" />
+                                    </div>
+                                    <p>Enter drug details to start AI safety analysis</p>
+                                </motion.div>
+                            )}
+
+                            {result && (
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ duration: 0.5 }}
+                                >
+                                    <SafetyScoreCard
+                                        score={result.score}
+                                        warnings={result.warnings}
+                                        explanation={result.explanation}
+                                    />
+
+                                    <AlternativeMeds alternatives={result.alternatives} />
+
+                                    {/* Citations Mockup */}
+                                    {result.citations && (
+                                        <div className="mt-8 p-4 rounded-xl bg-white/5 border border-white/5">
+                                            <h4 className="text-sm font-semibold text-gray-400 mb-2">Research Citations</h4>
+                                            <ul className="text-xs text-gray-500 space-y-1">
+                                                {result.citations.map((c: string, i: number) => (
+                                                    <li key={i} className="hover:text-purple-400 cursor-pointer transition-colors">• {c}</li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
                     </div>
-                    <div>
-                        <h2 className="text-lg font-semibold text-gray-900">RAG-Powered Safety Search</h2>
-                        <p className="text-sm text-gray-600">Search medical literature for rare side effects and alternatives</p>
-                    </div>
-                </div>
 
-                <div className="bg-white rounded-lg p-4 mb-4">
-                    <p className="text-sm text-purple-800 font-medium mb-2">
-                        🤖 AGENTIC AI DEV: Integrate RAG system here
-                    </p>
-                    <p className="text-xs text-gray-600">
-                        Connect to medical databases, FDA warnings, and research papers
-                    </p>
-                </div>
-
-                <div className="bg-white rounded-lg p-4">
-                    <input
-                        type="text"
-                        placeholder="Search for drug information, side effects, alternatives..."
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 mb-4"
-                    />
-
-                    <div className="space-y-3">
-                        <div className="p-3 bg-gray-50 rounded-lg">
-                            <p className="font-medium text-gray-900">Recent FDA Warning</p>
-                            <p className="text-sm text-gray-600 mt-1">
-                                Increased cardiovascular risk with long-term NSAID use
-                            </p>
-                            <p className="text-xs text-gray-500 mt-1">Source: FDA Safety Alert 2024</p>
-                        </div>
-                        <div className="p-3 bg-gray-50 rounded-lg">
-                            <p className="font-medium text-gray-900">Alternative Recommendation</p>
-                            <p className="text-sm text-gray-600 mt-1">
-                                Consider acetaminophen as safer alternative for chronic pain
-                            </p>
-                            <p className="text-xs text-gray-500 mt-1">Source: Clinical Guidelines 2024</p>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>

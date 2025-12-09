@@ -31,4 +31,9 @@ redis==5.0.1
 # AI/LangChain (for Agentic AI Developer)
 langchain==0.1.0
 langchain_core
-langchain_community==0.0.13
+langchain_community
+langchain_google_genai
+langchain-openai
+chromadb
+tiktoken
+sentence-transformers==2.2.2

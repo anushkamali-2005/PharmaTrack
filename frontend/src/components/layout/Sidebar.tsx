@@ -11,7 +11,7 @@ const navItems = [
     { href: '/dashboard/analytics', icon: BarChart3, label: 'Analytics' },
     { href: '/dashboard/alerts', icon: Bell, label: 'Alerts' },
     { href: '/dashboard/computer-vision', icon: Camera, label: 'Computer Vision' },
-    { href: '/dashboard/safety', icon: Shield, label: 'Medicine Safety' },
+    { href: '/dashboard/safety-checker', icon: Shield, label: 'Safety Engine AI' },
     { href: '/dashboard/voice', icon: Mic, label: 'Voice Assistant' },
     { href: '/dashboard/settings', icon: Settings, label: 'Settings' },
 ];

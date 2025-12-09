@@ -173,5 +173,15 @@ export const alertsApi = {
     },
 };
 
+// ==================== SAFETY APIs ====================
+
+export const safetyApi = {
+    // Check drug safety
+    checkSafety: async (data: { drug_name: string; conditions: string[]; current_medications: string[] }) => {
+        const response = await apiClient.post('/safety/check', data);
+        return response.data;
+    },
+};
+
 // Export axios instance for custom requests
 export default apiClient;
