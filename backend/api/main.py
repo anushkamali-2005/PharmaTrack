@@ -33,7 +33,7 @@ app.add_middleware(
 app.include_router(inventory.router, prefix="/api/v1/inventory", tags=["Inventory"])
 app.include_router(analytics.router, prefix="/api/v1/analytics", tags=["Analytics"])
 app.include_router(alerts.router, prefix="/api/v1/alerts", tags=["Alerts"])
-app.include_router(safety_router.router, prefix="/api/v1/safety", tags=["RAG Safety Engine"])
+app.include_router(safety_router, prefix="/api/v1/safety", tags=["RAG Safety Engine"])
 
 
 # ==================== ROOT ENDPOINTS ====================
