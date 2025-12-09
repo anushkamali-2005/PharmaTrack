@@ -4,7 +4,7 @@ import os
 
 # Import API routers
 from api.v1 import inventory, analytics, alerts
-from backend.features.rag_safety import router as safety_router
+from features.rag_safety import router as safety_router
 
 # Create FastAPI app
 app = FastAPI(

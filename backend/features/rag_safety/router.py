@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Query, BackgroundTasks
 from pydantic import BaseModel
 from typing import List, Optional
-from backend.features.rag_safety.service import safety_service
+from features.rag_safety.service import safety_service
 
 router = APIRouter()
 
