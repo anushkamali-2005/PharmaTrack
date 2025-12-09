@@ -27,7 +27,8 @@ class SafetyRagService:
         self.vector_store = None
         self.embeddings = None
         self.llm = None
-        self._initialize_components()
+        self._initialized = False
+        # Lazy initialization - don't initialize on import to speed up deployment
 
     def _initialize_components(self):
         """Initialize Embeddings, LLM, and Vector Store."""
@@ -67,6 +68,9 @@ class SafetyRagService:
         """
         Ingest the MedQuad dataset CSV into ChromaDB.
         """
+        # Initialize components if not already done
+        self._ensure_initialized()
+        
         try:
             if file_path is None:
                 file_path = CSV_PATH
@@ -144,11 +148,20 @@ class SafetyRagService:
             print(f"❌ Ingestion Error: {e}")
             return False
 
+    def _ensure_initialized(self):
+        """Lazy initialization - only initialize when actually needed."""
+        if not self._initialized:
+            self._initialize_components()
+            self._initialized = True
+
     def check_safety(self, drug_name: str, conditions: List[str], current_meds: List[str]) -> Dict:
         """
         Analyze safety of a drug for a specific patient context using RAG.
         Implements the full RAG-powered safety search engine workflow.
         """
+        # Initialize only when needed (lazy loading)
+        self._ensure_initialized()
+        
         if not self.vector_store or not self.llm:
             return {
                 "score": 0,
